@@ -7,6 +7,7 @@ function initTurndownService() {
 		codeBlockStyle: 'fenced'
 	});
 
+	//turndownService.remove("a")
 	turndownService.keep("span")
 	// preserve embedded tweets
 	turndownService.addRule('tweet', {
@@ -61,11 +62,15 @@ function getPostContent(post, turndownService, config) {
 	// this nifty trick causes turndown to keep adjacent paragraphs separated
 	// without mucking up content inside of other elemnts (like <code> blocks)
 	content = content.replace(/(\r?\n){2}/g, '\n<div></div>\n');
-	content = content.replace("\\[trans\\]", '');
-	if (config.saveScrapedImages) {
+	if (post.post_id[0] === 304) {
+		let i = 1;
+	}
+	content = content.replace(/\[\/?trans\]/g, '');
+	if (true || config.saveScrapedImages) {
 		// writeImageFile() will save all content images to a relative /images
 		// folder so update references in post content to match
 		content = content.replace(/(<img[^>]*src=").*?([^/"]+\.(?:gif|jpe?g|png))("[^>]*>)/gi, '$1images/$2$3');
+		content = content.replace(/(<a[^>]*href=").*?([^/"]+\.(?:gif|jpe?g|png))("[^>]*>)/gi, '$1images/$2$3');
 	}
 
 	// this is a hack to make <iframe> nodes non-empty by inserting a "." which

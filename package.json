@@ -12,6 +12,8 @@
 		"wordpress"
 	],
 	"scripts": {
+		"start": "node index.js",
+		"clean": "rm -rf output",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"author": "Will Boyd <will@codersblock.com> (https://codersblock.com)",
