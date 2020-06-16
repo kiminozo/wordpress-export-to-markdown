@@ -26,7 +26,7 @@ async function processPayloadsPromise(payloads, loadFunc, config) {
 			}
 		}, payload.delay);
 	}));
-	
+
 	const results = await Promise.allSettled(promises);
 	const failedCount = results.filter(result => result.status === 'rejected').length;
 	if (failedCount === 0) {
@@ -41,7 +41,7 @@ async function writeFile(destinationPath, data) {
 	await fs.promises.writeFile(destinationPath, data);
 }
 
-async function writeMarkdownFilesPromise(posts, config ) {
+async function writeMarkdownFilesPromise(posts, config) {
 	// package up posts into payloads
 	const payloads = posts.map((post, index) => ({
 		item: post,
@@ -58,8 +58,21 @@ async function loadMarkdownFilePromise(post) {
 	let output = '---\n';
 	Object.entries(post.frontmatter).forEach(pair => {
 		const key = pair[0];
-		const value = (pair[1] || '').replace(/"/g, '\\"');
-		output += key + ': "' + value + '"\n';
+		if (pair[1] && Array.isArray(pair[1])) {
+			const value = pair[1];
+			output += key + ': [';
+			for (let i = 0, l = value.length; i < l; i++) {
+				const element = value[i];
+				output += '"' + element + '"';
+				if (i != l - 1) {
+					output += ','
+				}
+			}
+			output += ']\n';
+		} else {
+			const value = (pair[1] || '').replace(/"/g, '\\"');
+			output += key + ': "' + value + '"\n';
+		}
 	});
 	output += '---\n\n' + post.content + '\n';
 	return output;

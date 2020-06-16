@@ -47,7 +47,7 @@ const options = [
 		aliases: ['postfolders'],
 		type: 'boolean',
 		description: 'Create a folder for each post',
-		default: true
+		default: false
 	},
 	{
 		name: 'prefix-date',
@@ -61,14 +61,14 @@ const options = [
 		aliases: ['saveimages'],
 		type: 'boolean',
 		description: 'Save images attached to posts',
-		default: true
+		default: false
 	},
 	{
 		name: 'save-scraped-images',
 		aliases: ['addcontentimages'],
 		type: 'boolean',
 		description: 'Save images scraped from post body content',
-		default: true
+		default: false
 	}
 ];
 
@@ -86,7 +86,7 @@ async function getConfig(argv) {
 			type: option.prompt,
 			message: option.description + '?',
 			default: option.default,
-	
+
 			// these are not used for all option types and that's fine
 			filter: option.coerce,
 			validate: option.validate
@@ -139,7 +139,7 @@ function replaceAliases(argv) {
 				if (arg.includes('--' + alias)) {
 					replaced.push(arg.replace('--' + alias, '--' + option.name));
 					aliasFound = true;
-				}	
+				}
 			});
 		});
 

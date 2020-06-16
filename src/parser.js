@@ -36,7 +36,7 @@ function collectPosts(data, config) {
 	// this is passed into getPostContent() for the markdown conversion
 	const turndownService = translator.initTurndownService();
 
-	const posts = getItemsOfType(data, 'post')
+	const posts = getItemsOfType(data, 'post')//, 'song'
 		.filter(post => post.status[0] !== 'trash' && post.status[0] !== 'draft')
 		.map(post => ({
 			// meta data isn't written to file, but is used to help with other things
@@ -48,13 +48,40 @@ function collectPosts(data, config) {
 			},
 			frontmatter: {
 				title: getPostTitle(post),
-				date: getPostDate(post)
+				date: getPostDate(post),
+				categories: getPostCategories(post),//["1"],
+				tags: getPostTags(post),
 			},
 			content: translator.getPostContent(post, turndownService, config)
 		}));
 
 	console.log(posts.length + ' posts found.');
-	return posts;
+
+
+	//SONG
+	// const songs = getItemsOfType(data, 'song')//, 'song'
+	// 	.filter(post => post.status[0] !== 'trash' && post.status[0] !== 'draft')
+	// 	.map(post => ({
+	// 		// meta data isn't written to file, but is used to help with other things
+	// 		meta: {
+	// 			id: getPostId(post),
+	// 			slug: getPostSlug(post),
+	// 			coverImageId: getPostCoverImageId(post),
+	// 			imageUrls: []
+	// 		},
+	// 		frontmatter: {
+	// 			title: getPostTitle(post),
+	// 			date: getPostDate(post),
+	// 			test: "1",
+	// 			categories:["1"],
+	// 			tags:["2","3"],
+	// 		},
+	// 		content: translator.getPostContent(post, turndownService, config)
+	// 	}));
+
+	// console.log(songs.length + ' songs found.');
+
+	return [...posts];
 }
 
 function getPostId(post) {
@@ -81,6 +108,26 @@ function getPostTitle(post) {
 
 function getPostDate(post) {
 	return luxon.DateTime.fromRFC2822(post.pubDate[0], { zone: 'utc' }).toISODate();
+}
+
+function getPostCategories(post) {
+	//<category domain="category" nicename="rain-or-shine"><![CDATA[Rain or Shine]]></category>
+	const cates = post.category.filter(cate => cate["$"].domain === 'category')
+		.map(cate => cate["_"])
+	//console.log(JSON.stringify(cates));
+	return cates;
+	// return post.categories.filter(cate => cate.domain === 'category')
+	// 	.map(cate => cate.meta_value[0]);
+}
+
+function getPostTags(post) {
+	//<category domain="category" nicename="rain-or-shine"><![CDATA[Rain or Shine]]></category>
+	const tags = post.category.filter(cate => cate["$"].domain === 'post_tag')
+		.map(cate => cate["_"])
+	//console.log(JSON.stringify(cates));
+	return tags;
+	// return post.categories.filter(cate => cate.domain === 'category')
+	// 	.map(cate => cate.meta_value[0]);
 }
 
 function collectAttachedImages(data) {
@@ -135,7 +182,7 @@ function mergeImagesIntoPosts(images, posts) {
 				// save cover image filename to frontmatter
 				post.frontmatter.coverImage = shared.getFilenameFromUrl(image.url);
 			}
-			
+
 			// save (unique) full image URLs for downloading later
 			if (!post.meta.imageUrls.includes(image.url)) {
 				post.meta.imageUrls.push(image.url);
