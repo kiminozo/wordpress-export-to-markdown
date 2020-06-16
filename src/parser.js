@@ -44,12 +44,14 @@ function collectPosts(data, config) {
 				id: getPostId(post),
 				slug: getPostSlug(post),
 				coverImageId: getPostCoverImageId(post),
+				dir: getDir(post),
 				imageUrls: []
 			},
 			frontmatter: {
 				title: getPostTitle(post),
 				date: getPostDate(post),
 				categories: getPostCategories(post),//["1"],
+				slug: getPostFullSlug(post),
 				tags: getPostTags(post),
 				license: getLicense(post),
 			},
@@ -91,6 +93,16 @@ function getPostId(post) {
 
 function getPostSlug(post) {
 	return post.post_name[0];
+}
+
+function getDir(post) {
+	const cates = post.category.filter(cate => cate["$"].domain === 'category')
+		.map(cate => cate["$"].nicename);
+	return cates[0];
+}
+
+function getPostFullSlug(post) {
+	return '/' + getDir(post) + '/' + post.post_name[0];
 }
 
 function getPostCoverImageId(post) {
