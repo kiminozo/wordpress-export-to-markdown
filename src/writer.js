@@ -58,20 +58,27 @@ async function loadMarkdownFilePromise(post) {
 	let output = '---\n';
 	Object.entries(post.frontmatter).forEach(pair => {
 		const key = pair[0];
-		if (pair[1] && Array.isArray(pair[1])) {
-			const value = pair[1];
+		const value = pair[1];
+		if (value && Array.isArray(value)) {
+			const val = value;
 			output += key + ': [';
-			for (let i = 0, l = value.length; i < l; i++) {
-				const element = value[i];
+			for (let i = 0, l = val.length; i < l; i++) {
+				const element = val[i];
 				output += '"' + element + '"';
 				if (i != l - 1) {
 					output += ','
 				}
 			}
 			output += ']\n';
+		} else if (value && typeof value === 'object') {
+			if (value !== {}) {
+				const json = JSON.stringify(pair[1]);
+				const unquoted = json.replace(/"([^"]+)":/g, '$1: ');
+				output += key + ': ' + unquoted + '\n';
+			}
 		} else {
-			const value = (pair[1] || '').replace(/"/g, '\\"');
-			output += key + ': "' + value + '"\n';
+			const val = (pair[1] || '').replace(/"/g, '\\"');
+			output += key + ': "' + val + '"\n';
 		}
 	});
 	output += '---\n\n' + post.content + '\n';

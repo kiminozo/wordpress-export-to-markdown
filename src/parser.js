@@ -51,6 +51,7 @@ function collectPosts(data, config) {
 				date: getPostDate(post),
 				categories: getPostCategories(post),//["1"],
 				tags: getPostTags(post),
+				license: getLicense(post),
 			},
 			content: translator.getPostContent(post, turndownService, config)
 		}));
@@ -128,6 +129,16 @@ function getPostTags(post) {
 	return tags;
 	// return post.categories.filter(cate => cate.domain === 'category')
 	// 	.map(cate => cate.meta_value[0]);
+}
+
+function getLicense(post) {
+	const license = {};
+	post.postmeta.filter(meta => !meta.meta_key[0].startsWith('_'))
+		.map(meta => license[meta.meta_key[0]] = meta.meta_value[0]);
+	// const json = JSON.stringify(license);
+	// const unquoted = json.replace(/"([^"]+)":/g, '$1:');
+	// console.log(unquoted);
+	return license;
 }
 
 function collectAttachedImages(data) {
