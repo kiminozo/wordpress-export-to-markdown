@@ -75,6 +75,7 @@ function collectPosts(data, config) {
 			},
 			frontmatter: {
 				title: getPostTitle(post),
+				type: "song",
 				date: getPostDate(post),
 				order: getPostOrder(post),
 				discography: getSongTags(post, 'discography'),
