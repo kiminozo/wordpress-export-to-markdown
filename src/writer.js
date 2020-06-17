@@ -76,6 +76,8 @@ async function loadMarkdownFilePromise(post) {
 				const unquoted = json.replace(/"([^"]+)":/g, '$1: ');
 				output += key + ': ' + unquoted + '\n';
 			}
+		} else if (value && typeof value === 'number') {
+			output += key + ': ' + value + '\n';
 		} else {
 			const val = (pair[1] || '').replace(/"/g, '\\"');
 			output += key + ': "' + val + '"\n';
@@ -94,7 +96,7 @@ async function writeImageFilesPromise(posts, config) {
 		return post.meta.imageUrls.map(imageUrl => {
 			const filename = shared.getFilenameFromUrl(imageUrl);
 			const payload = {
-				item: imageUrl,
+				item: encodeURI(imageUrl),
 				name: filename,
 				destinationPath: path.join(imagesDir, filename),
 				delay

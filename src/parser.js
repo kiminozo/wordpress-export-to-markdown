@@ -62,7 +62,37 @@ function collectPosts(data, config) {
 
 
 	//SONG
-	// const songs = getItemsOfType(data, 'song')//, 'song'
+	const songs = getItemsOfType(data, 'song')//, 'song'
+		.filter(post => post.status[0] !== 'trash' && post.status[0] !== 'draft')
+		.map(post => ({
+			// meta data isn't written to file, but is used to help with other things
+			meta: {
+				id: getPostId(post),
+				slug: decodeURI(getPostSlug(post)),
+				coverImageId: getPostCoverImageId(post),
+				imageUrls: [],
+				dir: "songs"
+			},
+			frontmatter: {
+				title: getPostTitle(post),
+				date: getPostDate(post),
+				order: getPostOrder(post),
+				discography: getSongTags(post, 'discography'),
+				discographyId: getSongNiceName(post, 'discography'),
+				singer: getSongTags(post, 'singer'),
+				songwriter: getSongTags(post, 'songwriter'),
+				lyricwriter: getSongTags(post, 'lyricwriter'),
+				arranger: getSongTags(post, 'arranger'),
+				slug: 'songs/' + decodeURI(getPostSlug(post)),
+				tags: getPostTags(post),
+				license: getLicense(post),
+			},
+			content: translator.getPostContent(post, turndownService, config)
+		}));
+
+	console.log(songs.length + ' songs found.');
+
+	// const records = getItemsOfType(data, 'record')//, 'record'
 	// 	.filter(post => post.status[0] !== 'trash' && post.status[0] !== 'draft')
 	// 	.map(post => ({
 	// 		// meta data isn't written to file, but is used to help with other things
@@ -71,55 +101,27 @@ function collectPosts(data, config) {
 	// 			slug: getPostSlug(post),
 	// 			coverImageId: getPostCoverImageId(post),
 	// 			imageUrls: [],
-	// 			dir: "songs"
+	// 			dir: "record"
 	// 		},
 	// 		frontmatter: {
+	// 			id: getPostSlug(post),
 	// 			title: getPostTitle(post),
 	// 			date: getPostDate(post),
-	// 			discography: getSongTags(post, 'discography'),
-	// 			discographyId: getSongNiceName(post, 'discography'),
-	// 			singer: getSongTags(post, 'singer'),
-	// 			songwriter: getSongTags(post, 'songwriter'),
-	// 			lyricwriter: getSongTags(post, 'lyricwriter'),
-	// 			arranger: getSongTags(post, 'arranger'),
-	// 			slug: 'songs/' + getPostSlug(post),
-	// 			tags: getPostTags(post),
-	// 			license: getLicense(post),
+	// 			//discography: getMeta(post, 'discography'),
+	// 			recordNo: getMeta(post, 'record-no'),
+	// 			recordPrice: getMeta(post, 'record-price'),
+	// 			recordReleaseDate: getMeta(post, 'record-release-date'),
+	// 			recordPublisher: getMeta(post, 'record-publisher'),
+	// 			recordType: getMeta(post, 'record-type'),
+	// 			order: getPostOrder(post),
+	// 			slug: 'discography/' + getPostSlug(post),
 	// 		},
 	// 		content: translator.getPostContent(post, turndownService, config)
 	// 	}));
 
-	// console.log(songs.length + ' songs found.');
+	// console.log(records.length + ' records found.');
 
-	const records = getItemsOfType(data, 'record')//, 'record'
-		.filter(post => post.status[0] !== 'trash' && post.status[0] !== 'draft')
-		.map(post => ({
-			// meta data isn't written to file, but is used to help with other things
-			meta: {
-				id: getPostId(post),
-				slug: getPostSlug(post),
-				coverImageId: getPostCoverImageId(post),
-				imageUrls: [],
-				dir: "record"
-			},
-			frontmatter: {
-				id: getPostSlug(post),
-				title: getPostTitle(post),
-				date: getPostDate(post),
-				discography: getMeta(post, 'discography'),
-				recordNo: getMeta(post, 'record-no'),
-				recordPrice: getMeta(post, 'record-price'),
-				recordReleaseDate: getMeta(post, 'record-release-date'),
-				recordPublisher: getMeta(post, 'record - publisher'),
-				recordType: getMeta(post, 'record-type'),
-				slug: 'record/' + getPostSlug(post),
-			},
-			content: translator.getPostContent(post, turndownService, config)
-		}));
-
-	console.log(records.length + ' records found.');
-
-	return [...records];
+	return [...songs];
 }
 
 function getPostId(post) {
@@ -138,6 +140,10 @@ function getDir(post) {
 
 function getPostFullSlug(post) {
 	return '/' + getDir(post) + '/' + post.post_name[0];
+}
+
+function getPostOrder(post) {
+	return post.menu_order[0] ? Number.parseInt(post.menu_order[0]) : 0;
 }
 
 function getPostCoverImageId(post) {
