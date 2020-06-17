@@ -67,7 +67,6 @@ function getPostContent(post, turndownService, config) {
 	// }
 	content = content.replace(/\[\/?trans\]/g, '');
 	content = content.replace(/\[\/?lrc\]/g, '');
-
 	if (true || config.saveScrapedImages) {
 		// writeImageFile() will save all content images to a relative /images
 		// folder so update references in post content to match
@@ -85,7 +84,8 @@ function getPostContent(post, turndownService, config) {
 	content = turndownService.turndown(content);
 
 	// clean up extra spaces in list items
-	content = content.replace(/(-|\d+\.) +/g, '$1 ');
+	//	content = content.replace(/(-|\d+\.) +/g, '$1 ');
+	content = content.replace(/\n/g, ' \n',);
 
 	// clean up the "." from the iframe hack above
 	content = content.replace(/\.(<\/iframe>)/gi, '$1');
