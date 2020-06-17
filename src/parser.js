@@ -36,33 +36,7 @@ function collectPosts(data, config) {
 	// this is passed into getPostContent() for the markdown conversion
 	const turndownService = translator.initTurndownService();
 
-	const posts = getItemsOfType(data, 'post')//, 'song'
-		.filter(post => post.status[0] !== 'trash' && post.status[0] !== 'draft')
-		.map(post => ({
-			// meta data isn't written to file, but is used to help with other things
-			meta: {
-				id: getPostId(post),
-				slug: getPostSlug(post),
-				coverImageId: getPostCoverImageId(post),
-				dir: getDir(post),
-				imageUrls: []
-			},
-			frontmatter: {
-				title: getPostTitle(post),
-				date: getPostDate(post),
-				categories: getPostCategories(post),//["1"],
-				slug: getPostFullSlug(post),
-				tags: getPostTags(post),
-				license: getLicense(post),
-			},
-			content: translator.getPostContent(post, turndownService, config)
-		}));
-
-	console.log(posts.length + ' posts found.');
-
-
-	//SONG
-	// const songs = getItemsOfType(data, 'song')//, 'song'
+	// const posts = getItemsOfType(data, 'post')//, 'song'
 	// 	.filter(post => post.status[0] !== 'trash' && post.status[0] !== 'draft')
 	// 	.map(post => ({
 	// 		// meta data isn't written to file, but is used to help with other things
@@ -70,21 +44,54 @@ function collectPosts(data, config) {
 	// 			id: getPostId(post),
 	// 			slug: getPostSlug(post),
 	// 			coverImageId: getPostCoverImageId(post),
+	// 			dir: getDir(post),
 	// 			imageUrls: []
 	// 		},
 	// 		frontmatter: {
 	// 			title: getPostTitle(post),
 	// 			date: getPostDate(post),
-	// 			test: "1",
-	// 			categories:["1"],
-	// 			tags:["2","3"],
+	// 			categories: getPostCategories(post),//["1"],
+	// 			slug: getPostFullSlug(post),
+	// 			tags: getPostTags(post),
+	// 			license: getLicense(post),
 	// 		},
 	// 		content: translator.getPostContent(post, turndownService, config)
 	// 	}));
 
-	// console.log(songs.length + ' songs found.');
+	// console.log(posts.length + ' posts found.');
 
-	return [...posts];
+
+	//SONG
+	const songs = getItemsOfType(data, 'song')//, 'song'
+		.filter(post => post.status[0] !== 'trash' && post.status[0] !== 'draft')
+		.map(post => ({
+			// meta data isn't written to file, but is used to help with other things
+			meta: {
+				id: getPostId(post),
+				slug: getPostSlug(post),
+				coverImageId: getPostCoverImageId(post),
+				imageUrls: [],
+				dir: "songs"
+			},
+			frontmatter: {
+				title: getPostTitle(post),
+				date: getPostDate(post),
+				discography: getSongTags(post, 'discography'),
+				discographyId: getSongNiceName(post, 'discography'),
+				singer: getSongTags(post, 'singer'),
+				songwriter: getSongTags(post, 'songwriter'),
+				lyricwriter: getSongTags(post, 'lyricwriter'),
+				arranger: getSongTags(post, 'arranger'),
+				slug: 'songs/' + getPostSlug(post),
+				tags: getPostTags(post),
+				license: getLicense(post),
+			},
+			content: translator.getPostContent(post, turndownService, config)
+		}));
+
+	console.log(songs.length + ' songs found.');
+
+	return [...songs];
 }
 
 function getPostId(post) {
@@ -133,6 +140,8 @@ function getPostCategories(post) {
 	// 	.map(cate => cate.meta_value[0]);
 }
 
+
+
 function getPostTags(post) {
 	//<category domain="category" nicename="rain-or-shine"><![CDATA[Rain or Shine]]></category>
 	const tags = post.category.filter(cate => cate["$"].domain === 'post_tag')
@@ -145,13 +154,26 @@ function getPostTags(post) {
 
 function getLicense(post) {
 	const license = {};
-	post.postmeta.filter(meta => !meta.meta_key[0].startsWith('_'))
+	post.postmeta.filter(meta => meta.meta_key[0].startsWith('license-'))
 		.map(meta => license[meta.meta_key[0].replace('license-', '')] = meta.meta_value[0]);
 	// const json = JSON.stringify(license);
 	// const unquoted = json.replace(/"([^"]+)":/g, '$1:');
 	// console.log(unquoted);
 	return license;
 }
+
+function getSongTags(post, name) {
+	const cates = post.category.filter(cate => cate["$"].domain === name)
+		.map(cate => cate["_"])
+	return cates;
+}
+
+function getSongNiceName(post, name) {
+	const cates = post.category.filter(cate => cate["$"].domain === name)
+		.map(cate => cate["$"].nicename)
+	return cates;
+}
+
 
 function collectAttachedImages(data) {
 	const images = getItemsOfType(data, 'attachment')
