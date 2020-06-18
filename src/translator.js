@@ -85,7 +85,7 @@ function getPostContent(post, turndownService, config) {
 
 	// clean up extra spaces in list items
 	//	content = content.replace(/(-|\d+\.) +/g, '$1 ');
-	content = content.replace(/\n/g, ' \n',);
+	content = content.replace(/\n/g, '  \n',);
 
 	// clean up the "." from the iframe hack above
 	content = content.replace(/\.(<\/iframe>)/gi, '$1');
