@@ -4,6 +4,7 @@ const xml2js = require('xml2js');
 
 const shared = require('./shared');
 const translator = require('./translator');
+const path = require('path');
 
 async function parseFilePromise(config) {
 	console.log('\nParsing...');
@@ -36,62 +37,62 @@ function collectPosts(data, config) {
 	// this is passed into getPostContent() for the markdown conversion
 	const turndownService = translator.initTurndownService();
 
-	// const posts = getItemsOfType(data, 'post')//, 'song'
-	// 	.filter(post => post.status[0] !== 'trash' && post.status[0] !== 'draft')
-	// 	.map(post => ({
-	// 		// meta data isn't written to file, but is used to help with other things
-	// 		meta: {
-	// 			id: getPostId(post),
-	// 			slug: getPostSlug(post),
-	// 			coverImageId: getPostCoverImageId(post),
-	// 			dir: getDir(post),
-	// 			imageUrls: []
-	// 		},
-	// 		frontmatter: {
-	// 			title: getPostTitle(post),
-	// 			date: getPostDate(post),
-	// 			categories: getPostCategories(post),//["1"],
-	// 			slug: getPostFullSlug(post),
-	// 			tags: getPostTags(post),
-	// 			license: getLicense(post),
-	// 		},
-	// 		content: translator.getPostContent(post, turndownService, config)
-	// 	}));
-
-	// console.log(posts.length + ' posts found.');
-
-
-	//SONG
-	const songs = getItemsOfType(data, 'song')//, 'song'
+	const posts = getItemsOfType(data, 'post')//, 'song'
 		.filter(post => post.status[0] !== 'trash' && post.status[0] !== 'draft')
 		.map(post => ({
 			// meta data isn't written to file, but is used to help with other things
 			meta: {
 				id: getPostId(post),
-				slug: decodeURI(getPostSlug(post)),
+				slug: getPostSlug(post),
 				coverImageId: getPostCoverImageId(post),
-				imageUrls: [],
-				dir: "songs"
+				dir: getDir(post),
+				imageUrls: []
 			},
 			frontmatter: {
 				title: getPostTitle(post),
-				type: "song",
 				date: getPostDate(post),
-				order: getPostOrder(post),
-				discography: getSongTags(post, 'discography'),
-				discographyId: getSongNiceName(post, 'discography'),
-				singer: getSongTags(post, 'singer'),
-				songwriter: getSongTags(post, 'songwriter'),
-				lyricwriter: getSongTags(post, 'lyricwriter'),
-				arranger: getSongTags(post, 'arranger'),
-				slug: 'songs/' + decodeURI(getPostSlug(post)),
+				categories: getPostCategories(post),//["1"],
+				slug: getPostFullSlug(post),
 				tags: getPostTags(post),
 				license: getLicense(post),
 			},
 			content: translator.getPostContent(post, turndownService, config)
 		}));
 
-	console.log(songs.length + ' songs found.');
+	console.log(posts.length + ' posts found.');
+
+
+	//SONG
+	// const songs = getItemsOfType(data, 'song')//, 'song'
+	// 	.filter(post => post.status[0] !== 'trash' && post.status[0] !== 'draft')
+	// 	.map(post => ({
+	// 		// meta data isn't written to file, but is used to help with other things
+	// 		meta: {
+	// 			id: getPostId(post),
+	// 			slug: getPostTitle(post),
+	// 			coverImageId: getPostCoverImageId(post),
+	// 			imageUrls: [],
+	// 			dir: path.join("songs", getSongSinger(post), getSongTags(post, 'discography')[0])
+	// 		},
+	// 		frontmatter: {
+	// 			title: getPostTitle(post),
+	// 			type: "song",
+	// 			date: getPostDate(post),
+	// 			order: getPostOrder(post),
+	// 			discography: getSongTags(post, 'discography'),
+	// 			discographyId: getSongNiceName(post, 'discography'),
+	// 			singer: getSongTags(post, 'singer'),
+	// 			songwriter: getSongTags(post, 'songwriter'),
+	// 			lyricwriter: getSongTags(post, 'lyricwriter'),
+	// 			arranger: getSongTags(post, 'arranger'),
+	// 			slug: 'songs/' + decodeURI(getPostSlug(post)),
+	// 			tags: getPostTags(post),
+	// 			license: getLicense(post),
+	// 		},
+	// 		content: translator.getPostContent(post, turndownService, config)
+	// 	}));
+
+	// console.log(songs.length + ' songs found.');
 
 	// const records = getItemsOfType(data, 'record')//, 'record'
 	// 	.filter(post => post.status[0] !== 'trash' && post.status[0] !== 'draft')
@@ -107,6 +108,7 @@ function collectPosts(data, config) {
 	// 		frontmatter: {
 	// 			id: getPostSlug(post),
 	// 			title: getPostTitle(post),
+	// 			type: "record",
 	// 			date: getPostDate(post),
 	// 			//discography: getMeta(post, 'discography'),
 	// 			recordNo: getMeta(post, 'record-no'),
@@ -122,7 +124,7 @@ function collectPosts(data, config) {
 
 	// console.log(records.length + ' records found.');
 
-	return [...songs];
+	return [...posts];
 }
 
 function getPostId(post) {
@@ -182,6 +184,7 @@ function getPostTags(post) {
 	const tags = post.category.filter(cate => cate["$"].domain === 'post_tag')
 		.map(cate => cate["_"])
 	//console.log(JSON.stringify(cates));
+
 	return tags;
 	// return post.categories.filter(cate => cate.domain === 'category')
 	// 	.map(cate => cate.meta_value[0]);
@@ -201,6 +204,17 @@ function getMeta(post, name) {
 	const meta = post.postmeta.filter(meta => meta.meta_key[0] === name)
 		.map(meta => meta.meta_value[0])
 	return meta[0];
+}
+
+function getSongSinger(post) {
+	const cates = getSongTags(post, 'singer');
+	if (cates.length == 0) {
+		return "未知"
+	} else if (cates.length === 1) {
+		return cates[0];
+	} else {
+		return "合唱"
+	}
 }
 
 function getSongTags(post, name) {
