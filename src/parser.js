@@ -101,7 +101,7 @@ function collectPosts(data, config) {
 			// meta data isn't written to file, but is used to help with other things
 			meta: {
 				id: getPostId(post),
-				slug: path.join(getArtistPath(post, data).join('/'), getPostSlug(post)),
+				slug: path.join(getArtistPath(post, data).join('/'), getPostTitle(post)),
 				coverImageId: getPostCoverImageId(post),
 				imageUrls: [],
 				dir: "record"
