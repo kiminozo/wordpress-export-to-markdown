@@ -76,6 +76,7 @@ function collectPosts(data, config) {
 			},
 			frontmatter: {
 				title: getPostTitle(post),
+				titlech: getMeta(post, 'song-title-trans'),
 				type: "song",
 				date: getPostDate(post),
 				order: getPostOrder(post),
@@ -148,7 +149,11 @@ function getPostFullSlug(post) {
 }
 
 function getPostOrder(post) {
-	return post.menu_order[0] ? Number.parseInt(post.menu_order[0]) : 0;
+	let x = post.menu_order[0] ? Number.parseInt(post.menu_order[0]) : 100000;
+	if (!x) {
+		x = 100000
+	}
+	return x;
 }
 
 function getPostCoverImageId(post) {
