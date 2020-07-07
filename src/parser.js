@@ -96,38 +96,41 @@ function collectPosts(data, config) {
 
 	// console.log(songs.length + ' songs found.');
 
-	// const records = getItemsOfType(data, 'record')//, 'record'
-	// 	.filter(post => post.status[0] !== 'trash' && post.status[0] !== 'draft')
-	// 	.map(post => ({
-	// 		// meta data isn't written to file, but is used to help with other things
-	// 		meta: {
-	// 			id: getPostId(post),
-	// 			slug: getPostSlug(post),
-	// 			coverImageId: getPostCoverImageId(post),
-	// 			imageUrls: [],
-	// 			dir: "record"
-	// 		},
-	// 		frontmatter: {
-	// 			id: getPostSlug(post),
-	// 			title: getPostTitle(post),
-	// 			type: "record",
-	// 			date: getPostDate(post),
-	// 			//discography: getMeta(post, 'discography'),
-	// 			recordNo: getMeta(post, 'record-no'),
-	// 			recordPrice: getMeta(post, 'record-price'),
-	// 			recordReleaseDate: getMeta(post, 'record-release-date'),
-	// 			recordPublisher: getMeta(post, 'record-publisher'),
-	// 			recordType: getMeta(post, 'record-type'),
-	// 			order: getPostOrder(post),
-	// 			slug: 'discography/' + getPostSlug(post),
-	// 		},
-	// 		content: translator.getPostContent(post, turndownService, config)
-	// 	}));
+	const records = getItemsOfType(data, 'record')//, 'record'
+		.filter(post => post.status[0] !== 'trash' && post.status[0] !== 'draft')
+		.map(post => ({
+			// meta data isn't written to file, but is used to help with other things
+			meta: {
+				id: getPostId(post),
+				slug: path.join(getArtistPath(post, data).join('/'), getPostTitle(post)),
+				coverImageId: getPostCoverImageId(post),
+				imageUrls: [],
+				dir: "record"
+			},
+			frontmatter: {
+				id: getPostSlug(post),
+				title: getPostTitle(post),
+				type: "record",
+				date: getPostDate(post),
+				artist: getArtist(post, data),
+				categories: Array.of(getArtistPath(post, data)[0]),
+				//discography: getMeta(post, 'discography'),
+				recordNo: getMeta(post, 'record-no'),
+				recordPrice: getMeta(post, 'record-price'),
+				recordReleaseDate: getMeta(post, 'record-release-date'),
+				recordPublisher: getMeta(post, 'record-publisher'),
+				recordType: getMeta(post, 'record-type'),
+				order: getPostOrder(post),
+				slug: '/discography/' + getPostSlug(post),
+			},
+			content: translator.getPostContent(post, turndownService, config)
+		}));
 
-	// console.log(records.length + ' records found.');
+	console.log(records.length + ' records found.');
 
 	return [...songs];
 }
+
 
 function getPostId(post) {
 	return post.post_id[0];
@@ -136,6 +139,8 @@ function getPostId(post) {
 function getPostSlug(post) {
 	return post.post_name[0];
 }
+
+
 
 function getDir(post) {
 	const cates = post.category.filter(cate => cate["$"].domain === 'category')
@@ -184,7 +189,39 @@ function getPostCategories(post) {
 	// 	.map(cate => cate.meta_value[0]);
 }
 
+function getArtist(post, data) {
+	const paths = getArtistPath(post, data);
+	if (paths.length == 2) {
+		return paths[1];
+	}
+	const name = paths[0];
+	if (name === '个人专辑' || name === '个人单曲') {
+		return "岡崎律子"
+	}
+	return name;
+}
 
+function getArtistPath(post, data) {
+	const id = getPostSlug(post);
+	// const songs = data.rss.channel[0].item
+	// 	.filter(p => p.post_type[0] === 'song')
+	// 	.filter(p => p.category.some(cate => cate["$"].domain === 'discography' && cate["$"].nicename === id))
+	const terms = data.rss.channel[0].term;
+	let term = terms.filter(p => p.term_slug.some(p => p === id))[0]
+	const slugs = [];
+	while (term) {
+		let { term_parent } = term;
+		if (term_parent && term_parent[0]) {
+			term = terms.filter(p => p.term_slug.some(p => p === term_parent[0]))[0];
+			let { term_name } = term;
+			slugs.splice(0, 0, term_name[0]);
+			continue
+		}
+		break
+	}
+	//const slugPath = slugs.join('/')
+	return slugs;
+}
 
 function getPostTags(post) {
 	//<category domain="category" nicename="rain-or-shine"><![CDATA[Rain or Shine]]></category>
