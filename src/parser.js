@@ -37,60 +37,61 @@ function collectPosts(data, config) {
 	// this is passed into getPostContent() for the markdown conversion
 	const turndownService = translator.initTurndownService();
 
-	const posts = getItemsOfType(data, 'post')//, 'song'
-		.filter(post => post.status[0] !== 'trash' && post.status[0] !== 'draft')
-		.map(post => ({
-			// meta data isn't written to file, but is used to help with other things
-			meta: {
-				id: getPostId(post),
-				slug: getPostSlug(post),
-				coverImageId: getPostCoverImageId(post),
-				dir: getDir(post),
-				imageUrls: []
-			},
-			frontmatter: {
-				title: getPostTitle(post),
-				date: getPostDate(post),
-				categories: getPostCategories(post),//["1"],
-				slug: getPostFullSlug(post),
-				tags: getPostTags(post),
-				license: getLicense(post),
-			},
-			content: translator.getPostContent(post, turndownService, config)
-		}));
-
-	console.log(posts.length + ' posts found.');
-
-
-	//SONG
-	// const songs = getItemsOfType(data, 'song')//, 'song'
+	// const posts = getItemsOfType(data, 'post')//, 'song'
 	// 	.filter(post => post.status[0] !== 'trash' && post.status[0] !== 'draft')
 	// 	.map(post => ({
 	// 		// meta data isn't written to file, but is used to help with other things
 	// 		meta: {
 	// 			id: getPostId(post),
-	// 			slug: getPostTitle(post),
+	// 			slug: getPostSlug(post),
 	// 			coverImageId: getPostCoverImageId(post),
-	// 			imageUrls: [],
-	// 			dir: path.join("songs", getSongSinger(post), getSongTags(post, 'discography')[0])
+	// 			dir: getDir(post),
+	// 			imageUrls: []
 	// 		},
 	// 		frontmatter: {
 	// 			title: getPostTitle(post),
-	// 			type: "song",
 	// 			date: getPostDate(post),
-	// 			order: getPostOrder(post),
-	// 			discography: getSongTags(post, 'discography'),
-	// 			discographyId: getSongNiceName(post, 'discography'),
-	// 			singer: getSongTags(post, 'singer'),
-	// 			songwriter: getSongTags(post, 'songwriter'),
-	// 			lyricwriter: getSongTags(post, 'lyricwriter'),
-	// 			arranger: getSongTags(post, 'arranger'),
-	// 			slug: 'songs/' + decodeURI(getPostSlug(post)),
+	// 			categories: getPostCategories(post),//["1"],
+	// 			slug: getPostFullSlug(post),
 	// 			tags: getPostTags(post),
 	// 			license: getLicense(post),
 	// 		},
 	// 		content: translator.getPostContent(post, turndownService, config)
 	// 	}));
+
+	// console.log(posts.length + ' posts found.');
+
+
+	//SONG
+	const songs = getItemsOfType(data, 'song')//, 'song'
+		.filter(post => post.status[0] !== 'trash' && post.status[0] !== 'draft')
+		.map(post => ({
+			// meta data isn't written to file, but is used to help with other things
+			meta: {
+				id: getPostId(post),
+				slug: getPostTitle(post),
+				coverImageId: getPostCoverImageId(post),
+				imageUrls: [],
+				dir: path.join("songs", getSongSinger(post), getSongTags(post, 'discography')[0])
+			},
+			frontmatter: {
+				title: getPostTitle(post),
+				type: "song",
+				date: getPostDate(post),
+				order: getPostOrder(post),
+				discography: getSongTags(post, 'discography'),
+				discographyId: getSongNiceName(post, 'discography'),
+				singer: getSongTags(post, 'singer'),
+				songwriter: getSongTags(post, 'songwriter'),
+				lyricwriter: getSongTags(post, 'lyricwriter'),
+				arranger: getSongTags(post, 'arranger'),
+				slug: 'songs/' + decodeURI(getPostSlug(post)),
+				tags: getPostTags(post),
+				remarks: getMeta(post, 'song-remarks'),
+				license: getLicense(post),
+			},
+			content: translator.getPostContent(post, turndownService, config)
+		}));
 
 	// console.log(songs.length + ' songs found.');
 
@@ -124,7 +125,7 @@ function collectPosts(data, config) {
 
 	// console.log(records.length + ' records found.');
 
-	return [...posts];
+	return [...songs];
 }
 
 function getPostId(post) {
@@ -140,6 +141,7 @@ function getDir(post) {
 		.map(cate => cate["$"].nicename);
 	return cates[0];
 }
+
 
 function getPostFullSlug(post) {
 	return '/' + getDir(post) + '/' + post.post_name[0];
