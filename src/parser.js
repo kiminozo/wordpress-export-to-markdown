@@ -85,7 +85,7 @@ function collectPosts(data, config) {
 				songwriter: getSongTags(post, 'songwriter'),
 				lyricwriter: getSongTags(post, 'lyricwriter'),
 				arranger: getSongTags(post, 'arranger'),
-				slug: 'songs/' + decodeURI(getPostSlug(post)),
+				slug: '/songs/' + decodeURI(getPostSlug(post)),
 				tags: getPostTags(post),
 				remarks: getMeta(post, 'song-remarks'),
 				license: getLicense(post),

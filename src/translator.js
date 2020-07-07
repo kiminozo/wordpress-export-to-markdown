@@ -1,4 +1,5 @@
 const turndown = require('turndown');
+const { option } = require('commander');
 
 function initTurndownService() {
 	const turndownService = new turndown({
@@ -8,7 +9,17 @@ function initTurndownService() {
 	});
 
 	//turndownService.remove("a")
-	turndownService.keep("span")
+	turndownService.keep("span");
+	// turndownService.keep((node, option) => {
+	// 	// if (node.nodeType == node.COMMENT_NODE) {
+	// 	// 	return true;
+	// 	// }
+	// 	console.log(node)
+	// 	//console.log(`${node.nodeName}, ${node.nodeType}`)
+	// 	return false;
+	// });
+	turndownService.escape("<!--")
+
 	// preserve embedded tweets
 	turndownService.addRule('tweet', {
 		filter: node => node.nodeName === 'BLOCKQUOTE' && node.getAttribute('class') === 'twitter-tweet',
@@ -62,13 +73,13 @@ function getPostContent(post, turndownService, config) {
 	// this nifty trick causes turndown to keep adjacent paragraphs separated
 	// without mucking up content inside of other elemnts (like <code> blocks)
 	content = content.replace(/(\r?\n){2}/g, '\n<div></div>\n');
-	if (post.post_id[0] === '280') {
-		console.log(post.post_id[0])
-	}
+	// if (post.post_id[0] === '280') {
+	// 	console.log(post.post_id[0])
+	// }
 	content = content.replace(/\[\/?trans\]/g, '');
 	content = content.replace(/\[\/?lrc\]/g, '');
-	content = content.replace(/\n/g, '<br/>',);
-
+	//content = content.replace(/\n/g, '<br/>',);
+	content = content.replace('<!--lrc-->', '<h6>lrc</h6>')
 	if (true || config.saveScrapedImages) {
 		// writeImageFile() will save all content images to a relative /images
 		// folder so update references in post content to match
@@ -83,16 +94,18 @@ function getPostContent(post, turndownService, config) {
 
 
 	// use turndown to convert HTML to Markdown
-	content = turndownService.turndown(content);
+	let newContent = turndownService.turndown(content);
 
 	// clean up extra spaces in list items
 	//	content = content.replace(/(-|\d+\.) +/g, '$1 ');
 	//content = content.replace(/\n/g, '  \n',);
 
 	// clean up the "." from the iframe hack above
-	content = content.replace(/\.(<\/iframe>)/gi, '$1');
+	newContent = newContent.replace('###### lrc', '<!-- 翻译 -->')
+	newContent = newContent.replace(/\.(<\/iframe>)/gi, '$1');
+	newContent = newContent.replace('\\', '')
 
-	return content;
+	return newContent;
 }
 
 exports.initTurndownService = initTurndownService;
