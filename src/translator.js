@@ -72,13 +72,13 @@ function getPostContent(post, turndownService, config) {
 	// insert an empty div element between double line breaks
 	// this nifty trick causes turndown to keep adjacent paragraphs separated
 	// without mucking up content inside of other elemnts (like <code> blocks)
-	content = content.replace(/(\r?\n){2}/g, '\n<div></div>\n');
+	//content = content.replace(/(\r?\n){2}/g, '\n<div></div>\n');
 	// if (post.post_id[0] === '280') {
 	// 	console.log(post.post_id[0])
 	// }
 	content = content.replace(/\[\/?trans\]/g, '');
 	content = content.replace(/\[\/?lrc\]/g, '');
-	//content = content.replace(/\n/g, '<br/>',);
+	content = content.replace(/\n/g, '<br/>',);
 	content = content.replace('<!--lrc-->', '<h6>lrc</h6>')
 	if (true || config.saveScrapedImages) {
 		// writeImageFile() will save all content images to a relative /images
